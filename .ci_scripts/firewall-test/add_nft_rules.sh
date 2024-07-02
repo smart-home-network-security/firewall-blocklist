@@ -1,6 +1,6 @@
 EXITCODE=0
 
-for nft_script in $GITHUB_WORKSPACE/devices/*/firewall*.nft
+for nft_script in $GITHUB_WORKSPACE/test/translator/devices/*/firewall.nft
 do
     # Flush the ruleset before next device
     sudo nft flush ruleset
