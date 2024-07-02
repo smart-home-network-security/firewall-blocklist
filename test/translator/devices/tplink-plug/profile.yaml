@@ -1,0 +1,94 @@
+# Sample profile for the TP-Link smart plug.
+
+---
+device-info:
+  name: tplink-plug
+  mac: 50:c7:bf:ed:0a:54
+  ipv4: 192.168.1.135
+  network: wireless
+
+
+single-policies:
+
+  ### LAN ###
+
+  ## TCP with phone
+  
+  lan-tcp-to-phone:
+    protocols:
+      tcp:
+        src-port: 9999
+      ipv4:
+        src: self
+        dst: 192.168.1.110
+    bidirectional: true
+
+  
+  ## UDP with phone
+  
+  lan-udp-to-phone:
+    protocols:
+      udp:
+        src-port: 9999
+      ipv4:
+        src: self
+        dst: 192.168.1.110
+    bidirectional: true
+
+  
+  ## DNS for domain name use1-api.tplinkra.com
+
+  dns-query-tplinkapi:
+    protocols:
+      dns:
+        qtype: A
+        domain-name: use1-api.tplinkra.com
+      udp:
+        dst-port: 53
+      ipv4:
+        src: self
+        dst: gateway
+    bidirectional: true
+
+
+  ## DNS for domain name n-devs.tplinkcloud.com
+
+  dns-query-tplinkcloud:
+    protocols:
+      dns:
+        qtype: A
+        domain-name: n-devs.tplinkcloud.com
+      udp:
+        dst-port: 53
+      ipv4:
+        src: self
+        dst: gateway
+    bidirectional: true
+
+
+  ### WAN ###
+
+  ## HTTPS with domain use1-api.tplinkra.com
+  
+  wan-https-to-domain-tplinkapi:
+    protocols:
+      tcp:
+        dst-port: 443
+      ipv4:
+        src: self
+        dst: use1-api.tplinkra.com
+    bidirectional: true
+
+
+  ## HTTPS with domain n-devs.tplinkcloud.com
+  
+  wan-https-to-domain-tplinkcloud:
+    protocols:
+      tcp:
+        dst-port: 443
+      ipv4:
+        src: self
+        dst: n-devs.tplinkcloud.com
+    bidirectional: true
+
+...

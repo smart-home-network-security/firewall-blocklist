@@ -1,0 +1,110 @@
+/**
+ * @brief SIGINT handler, flush stdout and exit.
+ *
+ * @param arg unused
+ */
+void sigint_handler(int arg) {
+    fflush(stdout);
+    exit(0);
+}
+
+/**
+ * @brief Program entry point
+ * 
+ * @param argc number of command line arguments
+ * @param argv list of command line arguments
+ * @return exit code, 0 if success
+ */
+int main(int argc, char const *argv[]) {
+
+    // Setup SIGINT handler
+    signal(SIGINT, sigint_handler);
+
+    #ifdef LOG
+    // CSV log file header
+    printf("hash,timestamp,policy,state,verdict\n");
+    #endif /* LOG */
+
+    /* GLOBAL STRUCTURES INITIALIZATION */
+
+    {% if "dns" in custom_parsers or "mdns" in custom_parsers or domain_names|length > 0 %}
+    // Initialize DNS map
+    dns_map = dns_map_create();
+
+    {% if domain_names|length > 0 %}
+    // Open socket for DNS
+    int sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (sockfd < 0) {
+        perror("Socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Server address: network gateway
+    struct sockaddr_in server_addr;
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(53);
+    server_addr.sin_addr.s_addr = inet_addr("192.168.1.1");
+
+    {% for name in domain_names %}
+    // Add addresses for domain {{name}} to DNS map
+    dns_send_query("{{name}}", sockfd, &server_addr);
+    {% if loop.index == 1 %}
+    dns_message_t dns_response = dns_receive_response(sockfd, &server_addr);
+    ip_list_t ip_list = dns_get_ip_from_name(dns_response.answers, dns_response.header.ancount, "{{name}}");
+    {% else %}
+    dns_response = dns_receive_response(sockfd, &server_addr);
+    ip_list = dns_get_ip_from_name(dns_response.answers, dns_response.header.ancount, "{{name}}");
+    {% endif %}
+    dns_map_add(dns_map, "{{name}}", ip_list);
+
+    // Check DNS map has been correctly updated
+    {% if loop.index == 1 %}
+    dns_entry_t *dns_entry = dns_map_get(dns_map, "{{name}}");
+    {% else %}
+    dns_entry = dns_map_get(dns_map, "{{name}}");
+    {% endif %}
+    dns_entry_print(dns_entry);
+
+    {% endfor %}
+    {% endif %}
+    {% endif %}
+    
+
+    {% if num_threads > 0 %}
+    /* NFQUEUE THREADS LAUNCH */
+
+    // Create threads
+    int ret = 0;  // Return code for pthread_create function
+    uint8_t i = 0;
+
+    {% for nfqueue in nfqueues if nfqueue.queue_num >= 0 %}
+    {% set nfqueue_name = nfqueue.name.replace('-', '_') %}
+    {% set nfqueue_name = nfqueue_name.replace('#', '_') %}
+    // {{nfqueue_name}}
+    thread_arg_t thread_arg_{{nfqueue_name}} = {
+        .queue_id = {{nfqueue.queue_num}},
+        .func = &callback_{{nfqueue_name}},
+        .arg = NULL
+    };
+    ret = pthread_create(&threads[i++], NULL, nfqueue_thread, (void *) &thread_arg_{{nfqueue_name}});
+    assert(ret == 0);
+    
+    {% endfor %}
+    // Wait forever for threads
+    for (i = 0; i < NUM_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+    {% endif %}
+
+
+    /* FREE MEMORY */
+
+    {% if "dns" in custom_parsers or "mdns" in custom_parsers or domain_names|length > 0 %}
+    // Free DNS map
+    dns_map_free(dns_map);
+    {% endif %}
+
+    return 0;
+}
+
