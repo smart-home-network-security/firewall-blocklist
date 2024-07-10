@@ -16,7 +16,7 @@ from typing import Tuple
 script_name = os.path.basename(__file__)
 script_path = Path(os.path.abspath(__file__))
 script_dir = script_path.parents[0]
-sys.path.append(os.path.join(script_dir, "protocols"))
+sys.path.insert(0, os.path.join(script_dir, "protocols"))
 
 # Import custom classes
 from LogType import LogType

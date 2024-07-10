@@ -48,7 +48,7 @@ class Protocol:
         :param protocol_data: Dictionary containing the protocol data.
         :param device: Dictionary containing the device metadata.
         """
-        module = importlib.import_module(f".{protocol_name}", package="protocols")
+        module = importlib.import_module(f"{protocol_name}")
         cls = getattr(module, protocol_name)
         return cls(protocol_data, device)
 
