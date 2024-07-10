@@ -1,4 +1,5 @@
 EXITCODE=0
+PARSERS_DIR="$GITHUB_WORKSPACE/src/parsers"
 VALGRIND_SUPP="$GITHUB_WORKSPACE/.ci_scripts/firewall-test/valgrind.supp"
 
 PREFIX=""

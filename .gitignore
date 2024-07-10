@@ -1,3 +1,6 @@
 # Build directories
 build
 bin
+
+# Python cache
+__pycache__

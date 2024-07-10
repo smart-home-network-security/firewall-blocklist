@@ -19,18 +19,18 @@
 #include "packet_utils.h"
 #include "rule_utils.h"
 // Parsers
-#include "parsers/header.h"
+#include "header.h"
 {% set dns_parser_included = namespace(value=False) %}
 {% for parser in custom_parsers %}
 {% if "dns" in parser %}
 {% set dns_parser_included.value = True %}
-#include "parsers/dns.h"
+#include "dns.h"
 {% else %}
-#include "parsers/{{parser}}.h"
+#include "{{parser}}.h"
 {% endif %}
 {% endfor %}
 {% if domain_names|length > 0 and not dns_parser_included.value %}
-#include "parsers/dns.h"
+#include "dns.h"
 {% endif %}
 
 {% if num_threads > 0 %}
