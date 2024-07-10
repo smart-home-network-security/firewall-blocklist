@@ -2,7 +2,7 @@ EXITCODE=0
 VALGRIND_SUPP="$GITHUB_WORKSPACE/.ci_scripts/firewall-test/valgrind.supp"
 
 PREFIX=""
-for file in "$GITHUB_WORKSPACE"/bin/test/*
+for file in "$GITHUB_WORKSPACE"/bin/test/* "$PARSERS_DIR"/bin/test/*
 do
     if [[ "$file" == *"rule_utils-test" ]]
     then
