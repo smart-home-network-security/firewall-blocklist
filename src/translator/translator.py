@@ -3,14 +3,22 @@ Translate a device YAML profile to the corresponding pair
 of NFTables firewall script and NFQueue C source code.
 """
 
-# Libraries
+# Import packages
 import os
+import sys
+from pathlib import Path
 import argparse
 import yaml
 import jinja2
 from typing import Tuple
 
-# Custom classes
+# Paths
+script_name = os.path.basename(__file__)
+script_path = Path(os.path.abspath(__file__))
+script_dir = script_path.parents[0]
+sys.path.append(os.path.join(script_dir, "protocols"))
+
+# Import custom classes
 from LogType import LogType
 from Policy import Policy
 from NFQueue import NFQueue
@@ -137,12 +145,11 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--test", action="store_true", help="Test mode: use VM instead of router")
     args = parser.parse_args()
 
-    # Retrieve useful paths
-    script_path = os.path.abspath(os.path.dirname(__file__))      # This script's path
-    device_path = os.path.abspath(os.path.dirname(args.profile))  # Device profile's path
+    # Retrieve device profile's path
+    device_path = os.path.abspath(os.path.dirname(args.profile))
 
     # Jinja2 loader
-    loader = jinja2.FileSystemLoader(searchpath=f"{script_path}/templates")
+    loader = jinja2.FileSystemLoader(searchpath=f"{script_dir}/templates")
     env = jinja2.Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
     # Add custom Jinja2 filters
     env.filters["debug"] = debug
@@ -154,7 +161,6 @@ if __name__ == "__main__":
     nfq_id_inc = 10
 
     # Load the device profile
-    print(args.profile)
     with open(args.profile, "r") as f:
         
         # Load YAML profile with custom loader

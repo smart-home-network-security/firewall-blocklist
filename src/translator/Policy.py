@@ -1,10 +1,12 @@
+## Import packages
 from enum import Enum
 from typing import Tuple, Dict
-from math import ceil
 import ipaddress
+## Custom libraries
+from LogType import LogType
+# Protocol translators
 from protocols.Protocol import Protocol
 from protocols.ip import ip
-from LogType import LogType
 
 
 class Policy:

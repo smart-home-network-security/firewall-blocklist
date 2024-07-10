@@ -1,4 +1,4 @@
-from protocols.Transport import Transport
+from Transport import Transport
 
 class udp(Transport):
     

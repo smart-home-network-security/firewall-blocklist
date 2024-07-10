@@ -1,7 +1,7 @@
 from typing import Union
 import ipaddress
-from protocols.Protocol import Protocol
-from protocols.igmp import igmp
+from Protocol import Protocol
+from igmp import igmp
 
 class ip(Protocol):
 

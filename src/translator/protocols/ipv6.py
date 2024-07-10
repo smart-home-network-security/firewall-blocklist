@@ -1,5 +1,5 @@
-from protocols.ip import ip
-from protocols.icmpv6 import icmpv6
+from ip import ip
+from icmpv6 import icmpv6
 
 class ipv6(ip):
 

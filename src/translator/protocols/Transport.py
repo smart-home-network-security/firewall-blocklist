@@ -1,4 +1,4 @@
-from protocols.Protocol import Protocol
+from Protocol import Protocol
 
 class Transport(Protocol):
     
