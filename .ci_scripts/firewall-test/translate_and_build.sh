@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## CONSTANTS
-CI_SCRIPTS_DIR="$CI_SCRIPTS_DIR"
+CI_SCRIPTS_DIR="$GITHUB_WORKSPACE/.ci_scripts/firewall-test"
 
 
 ## COMMAND LINE ARGUMENTS
