@@ -13,4 +13,7 @@ do
     fi
 done
 
+# Cleanup: Flush the ruleset
+sudo nft flush ruleset
+
 exit $EXITCODE

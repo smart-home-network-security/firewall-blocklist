@@ -101,17 +101,21 @@ def flatten_policies(single_policy_name: str, single_policy: dict, acc: dict = {
             flatten_policies(subpolicy, single_policy[subpolicy], acc)
 
 
-def parse_policy(policy_data: dict, nfq_id: int, global_accs: dict, log_type: LogType = LogType.NONE, log_group: int = 100) -> Tuple[Policy, bool]:
+def parse_policy(policy_data: dict, nfq_id: int, global_accs: dict, rate: int = None,  log_type: LogType = LogType.NONE, log_group: int = 100) -> Tuple[Policy, bool]:
     """
     Parse a policy.
 
     :param policy_data: Dictionary containing all the necessary data to create a Policy object
     :param global_accs: Dictionary containing the global accumulators
-    :param policies_count: Number of policies in the interaction
+    :param rate: Rate limit, in packets/second, to apply to matched traffic
     :param log_type: Type of packet logging to be used
     :param log_group: Log group ID to be used
     :return: the parsed policy, as a `Policy` object, and a boolean indicating whether a new NFQueue was created
     """
+    # If rate limit is given, add it to policy data
+    if rate is not None:
+        policy_data["profile_data"]["stats"] = {"rate": f"{rate}/second"}
+
     # Create and parse policy
     policy = Policy(**policy_data)
     policy.parse()
@@ -217,7 +221,7 @@ if __name__ == "__main__":
                 
                 # Parse policy
                 is_backward = profile_data.get("bidirectional", False)
-                policy, new_nfq = parse_policy(policy_data, nfq_id, global_accs, args.log_type, args.log_group)
+                policy, new_nfq = parse_policy(policy_data, nfq_id, global_accs, args.rate, args.log_type, args.log_group)
 
                 # Parse policy in backward direction, if needed
                 if is_backward:
@@ -227,7 +231,7 @@ if __name__ == "__main__":
                         "device": device,
                         "is_backward": True
                     }
-                    policy_backward, new_nfq = parse_policy(policy_data_backward, nfq_id + 1, global_accs, args.log_type, args.log_group)
+                    policy_backward, new_nfq = parse_policy(policy_data_backward, nfq_id + 1, global_accs, args.rate, args.log_type, args.log_group)
 
                 # Update nfqueue variables if needed
                 if new_nfq:

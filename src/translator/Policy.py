@@ -188,12 +188,13 @@ class Policy:
             self.nft_stats[stat] = parsed_stat
 
     
-    def build_nft_rule(self, queue_num: int, log_type: LogType = LogType.NONE, log_group: int = 100) -> str:
+    def build_nft_rule(self, queue_num: int, rate: int = None, log_type: LogType = LogType.NONE, log_group: int = 100) -> str:
         """
         Build and store the nftables match and action, as strings, for this policy.
 
         :param queue_num: number of the nfqueue queue corresponding to this policy,
                           or a negative number if the policy is simply `drop`
+        :param rate: rate limit, in packets/second, for this policy
         :param log_type: type of logging to enable
         :param log_group: log group number
         :return: complete nftables rule for this policy
