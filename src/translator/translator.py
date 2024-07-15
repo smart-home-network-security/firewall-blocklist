@@ -43,6 +43,22 @@ def uint16(value: str) -> int:
     return result
 
 
+def proba(value: str) -> float:
+    """
+    Custom type for argparse,
+    to check whether a value is a valid probability,
+    i.e. a float between 0 and 1.
+
+    :param value: value to check
+    :return: the value, if it is a valid probability
+    :raises argparse.ArgumentTypeError: if the value is not a valid probability
+    """
+    result = float(value)
+    if result < 0 or result > 1:
+        raise argparse.ArgumentTypeError(f"{value} is not a valid probability (must be a float between 0 and 1)")
+    return result
+
+
 ##### Custom Jinja2 filters #####
 
 def is_list(value: any) -> bool:
@@ -135,15 +151,22 @@ def parse_policy(policy_data: dict, nfq_id: int, global_accs: dict, log_type: Lo
 ##### MAIN #####
 if __name__ == "__main__":
 
-    # Command line arguments
+    ## Command line arguments
     description = "Translate a device YAML profile to the corresponding pair of NFTables firewall script and NFQueue C source code."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("profile", type=str, help="Path to the device YAML profile")
     parser.add_argument("nfq_id_base", type=uint16, help="NFQueue start index for this profile's policies (must be an integer between 0 and 65535)")
+    # Verdict modes
+    parser.add_argument("-r", "--rate", type=int, help="Rate limit, in packets/second, to apply to matched traffic, instead of a binary verdict. Cannot be used with dropping probability.")
+    parser.add_argument("-p", "--drop-proba", type=proba, help="Dropping probability to apply to matched traffic, instead of a binary verdict. Cannot be used with rate limiting.")
     parser.add_argument("-l", "--log-type", type=lambda log_type: LogType[log_type], choices=list(LogType), default=LogType.NONE, help="Type of packet logging to be used")
     parser.add_argument("-g", "--log-group", type=uint16, default=100, help="Log group number (must be an integer between 0 and 65535)")
     parser.add_argument("-t", "--test", action="store_true", help="Test mode: use VM instead of router")
     args = parser.parse_args()
+
+    # Verify verdict mode
+    if args.rate is not None and args.drop_proba is not None:
+        parser.error("Arguments --rate and --drop-proba are mutually exclusive")
 
     # Retrieve device profile's path
     device_path = os.path.abspath(os.path.dirname(args.profile))
