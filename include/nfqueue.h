@@ -26,30 +26,6 @@
 
 
 /**
- * @brief Structure which stores the data relative to one policy interaction.
- */
-typedef struct {
-    uint16_t nfq_id_base;   // Base nfqueue ID
-    uint8_t num_policies;   // Total number of policies
-    uint8_t num_states;     // Number of different states
-    pthread_mutex_t mutex;  // State mutex
-    uint8_t current_state;  // Current state
-    counters_t *counters;   // Array of counters
-    ip_addr_t cached_ip;    // Cached IP address
-} interaction_data_t;
-
-/**
- * @brief Packet and duration counters ids.
- * 
- * Identifiers for the packet and duration counters.
- * Used as argument for the nfqueue threads.
- */
-typedef struct {
-    uint8_t packet_counter_id;
-    uint8_t duration_counter_id;
-} counters_id_t;
-
-/**
  * @brief Alias for a basic callback function.
  *
  * @param pkt_id packet ID for netfilter queue
@@ -77,15 +53,14 @@ typedef struct callback_struct {
 /**
  * @brief Contains the necessary arguments for an nfqueue thread.
  * The arguments are:
- * - the thread ID
  * - the queue number to bind to
  * - the basic callback function
- * - the arguments to pass to the callback function
+ * - the arguments to pass to the callback function (thread ID)
  */
 typedef struct {
     uint16_t queue_id;     // Queue number to bind to
     basic_callback *func;  // Basic callback function
-    void *arg;             // Arguments to pass to the callback function
+    void *arg;             // Arguments to pass to the callback function (thread ID)
 } thread_arg_t;
 
 /**
@@ -105,7 +80,7 @@ int get_pkt_id(struct nfq_data *nfad);
  * @param callback the callback funtion, called upon packet reception
  * The callback function must have the following signature:
  *     int callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *data)
- * @param arg the argument to pass to the callback function
+ * @param arg the argument to pass to the callback function (thread ID)
  */
 void bind_queue(uint16_t queue_num, basic_callback *callback, void *arg);
 

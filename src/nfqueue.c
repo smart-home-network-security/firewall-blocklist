@@ -82,7 +82,7 @@ int nfqueue_callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq
  * @param callback the basic callback function, called upon packet reception
  * The callback function must have the following signature:
  *     uint32_t callback(int pkt_id, uint8_t *payload, void *arg)
- * @param arg the argument to pass to the basic callback function
+ * @param arg the argument to pass to the basic callback function (thread ID)
  */
 void bind_queue(uint16_t queue_num, basic_callback *callback, void *arg)
 {
