@@ -19,10 +19,10 @@ jobs:
         run: pip install -r $GITHUB_WORKSPACE/requirements.txt
 
       - name: Translate and build profiles, with binary verdict
-        run: $GITHUB_WORKSPACE/.ci_scripts/firewall-test/translate_and_build.sh
+        run: $GITHUB_WORKSPACE/.ci_scripts/cross-compile/translate_and_build.sh
 
       - name: Translate and build profiles, with rate limiting verdict
-        run: $GITHUB_WORKSPACE/.ci_scripts/firewall-test/translate_and_build.sh -r 50
+        run: $GITHUB_WORKSPACE/.ci_scripts/cross-compile/translate_and_build.sh -r 50
 
       # - name: Translate and build profiles, with stochastic verdict
-      #   run: $GITHUB_WORKSPACE/.ci_scripts/firewall-test/translate_and_build.sh -p 0.5
+      #   run: $GITHUB_WORKSPACE/.ci_scripts/cross-compile/translate_and_build.sh -p 0.5
