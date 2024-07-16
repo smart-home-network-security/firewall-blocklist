@@ -1,3 +1,7 @@
+# Config directories
+.vscode
+.vagrant
+
 # Build directories
 build
 bin

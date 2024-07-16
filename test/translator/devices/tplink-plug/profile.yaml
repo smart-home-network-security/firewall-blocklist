@@ -20,7 +20,7 @@ single-policies:
         src-port: 9999
       ipv4:
         src: self
-        dst: 192.168.1.110
+        dst: 192.168.1.222
     bidirectional: true
 
   
@@ -32,7 +32,7 @@ single-policies:
         src-port: 9999
       ipv4:
         src: self
-        dst: 192.168.1.110
+        dst: 192.168.1.222
     bidirectional: true
 
   
