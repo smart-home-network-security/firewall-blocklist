@@ -188,7 +188,7 @@ class Policy:
             self.nft_stats[stat] = parsed_stat
 
     
-    def build_nft_rule(self, queue_num: int, rate: int = None, log_type: LogType = LogType.NONE, log_group: int = 100) -> str:
+    def build_nft_rule(self, queue_num: int, drop_proba: float = 1.0, log_type: LogType = LogType.NONE, log_group: int = 100) -> str:
         """
         Build and store the nftables match and action, as strings, for this policy.
 
@@ -223,14 +223,27 @@ class Policy:
         ## nftables action
         if self.nft_action:
             self.nft_action += " "
-        verdict = "QUEUE" if queue_num >= 0 else "DROP"
+
         # Log action
+        verdict = ""
+        if queue_num >= 0:
+            verdict = "QUEUE"
+        elif drop_proba == 1.0:
+            verdict = "DROP"
+        elif drop_proba == 0.0:
+            verdict = "ACCEPT"
         if log_type == LogType.CSV:
             self.nft_action += f"log prefix \\\"{self.name},,{verdict}\\\" group {log_group} "
         elif log_type == LogType.PCAP:
             self.nft_action += f"log group {log_group} "
+        
         # Verdict action
-        self.nft_action += f"queue num {queue_num}" if queue_num >= 0 else "drop"
+        if queue_num >= 0:
+            self.nft_action += f"queue num {queue_num}"
+        elif drop_proba == 1.0:
+            self.nft_action += "drop"
+        elif drop_proba == 0.0:
+            self.nft_action += "accept"
 
         return self.get_nft_rule()
 

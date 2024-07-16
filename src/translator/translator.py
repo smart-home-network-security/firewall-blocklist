@@ -101,7 +101,7 @@ def flatten_policies(single_policy_name: str, single_policy: dict, acc: dict = {
             flatten_policies(subpolicy, single_policy[subpolicy], acc)
 
 
-def parse_policy(policy_data: dict, nfq_id: int, global_accs: dict, rate: int = None, drop_proba: float = 1,  log_type: LogType = LogType.NONE, log_group: int = 100) -> Tuple[Policy, bool]:
+def parse_policy(policy_data: dict, nfq_id: int, global_accs: dict, rate: int = None, drop_proba: float = 1.0,  log_type: LogType = LogType.NONE, log_group: int = 100) -> Tuple[Policy, bool]:
     """
     Parse a policy.
 
@@ -117,6 +117,9 @@ def parse_policy(policy_data: dict, nfq_id: int, global_accs: dict, rate: int = 
     if rate is not None:
         policy_data["profile_data"]["stats"] = {"rate": f"{rate}/second"}
 
+    # Set default value for drop probability
+    drop_proba = 1.0 if drop_proba is None else drop_proba
+
     # Create and parse policy
     policy = Policy(**policy_data)
     policy.parse()
@@ -131,9 +134,9 @@ def parse_policy(policy_data: dict, nfq_id: int, global_accs: dict, rate: int = 
                 global_accs["domain_names"].append(name)
     
     # Add nftables rules
-    not_nfq = not policy.nfq_matches and drop_proba == 1
+    not_nfq = not policy.nfq_matches and (drop_proba == 0.0 or drop_proba == 1.0)
     nfq_id = -1 if not_nfq else nfq_id
-    policy.build_nft_rule(nfq_id, log_type, log_group)
+    policy.build_nft_rule(nfq_id, drop_proba, log_type, log_group)
     new_nfq = False
     try:
         # Check if nft match is already stored
@@ -163,7 +166,7 @@ if __name__ == "__main__":
     parser.add_argument("nfq_id_base", type=uint16, help="NFQueue start index for this profile's policies (must be an integer between 0 and 65535)")
     # Verdict modes
     parser.add_argument("-r", "--rate", type=int, help="Rate limit, in packets/second, to apply to matched traffic, instead of a binary verdict. Cannot be used with dropping probability.")
-    parser.add_argument("-p", "--drop-proba", type=proba, default=1.0, help="Dropping probability to apply to matched traffic, instead of a binary verdict. Cannot be used with rate limiting.")
+    parser.add_argument("-p", "--drop-proba", type=proba, help="Dropping probability to apply to matched traffic, instead of a binary verdict. Cannot be used with rate limiting.")
     parser.add_argument("-l", "--log-type", type=lambda log_type: LogType[log_type], choices=list(LogType), default=LogType.NONE, help="Type of packet logging to be used")
     parser.add_argument("-g", "--log-group", type=uint16, default=100, help="Log group number (must be an integer between 0 and 65535)")
     parser.add_argument("-t", "--test", action="store_true", help="Test mode: use VM instead of router")
@@ -243,6 +246,7 @@ if __name__ == "__main__":
         nft_dict = {
             "device": device,
             "nfqueues": global_accs["nfqueues"],
+            "drop_proba": args.drop_proba,
             "log_type": args.log_type,
             "log_group": args.log_group,
             "test": args.test
@@ -263,7 +267,8 @@ if __name__ == "__main__":
             header = env.get_template("header.c.j2").render(header_dict)
             callback_dict = {
                 "nft_table": f"bridge {device['name']}",
-                "nfqueues": global_accs["nfqueues"]
+                "nfqueues": global_accs["nfqueues"],
+                "drop_proba": args.drop_proba
             }
             callback = env.get_template("callback.c.j2").render(callback_dict)
             main_dict = {

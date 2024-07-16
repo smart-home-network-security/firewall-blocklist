@@ -225,21 +225,35 @@ class NFQueue:
         return result
 
 
-    def get_nft_rule(self, log_type: LogType = LogType.NONE, log_group: int = 100) -> str:
+    def get_nft_rule(self, drop_proba: float = 1.0, log_type: LogType = LogType.NONE, log_group: int = 100) -> str:
         """
         Retrieve the complete nftables rule, composed of the complete nftables match
         and the action, for this nfqueue.
 
         :return: complete nftables rule for this nfqueue
         """
+        # Set NFT rule match
         nft_rule = ""
         for nft_match in self.nft_matches:
             nft_rule += nft_match["template"].format(nft_match["match"]) + " "
         for stat in self.nft_stats.values():
             if stat["match"] != 0:
                 nft_rule += stat["template"].format(stat["match"]) + " "
-        nft_action = f"queue num {self.queue_num}" if self.queue_num >= 0 else "drop"
-        verdict = "DROP" if "drop" in nft_action else "QUEUE"
+        
+        # Set NFT rule action and log verdict (queue, drop, accept)
+        nft_action = ""
+        verdict = ""
+        if self.queue_num >= 0:
+            nft_action = f"queue num {self.queue_num}"
+            verdict = "QUEUE"
+        elif drop_proba == 1.0:
+            nft_action = "drop"
+            verdict = "DROP"
+        elif drop_proba == 0.0:
+            nft_action = "accept"
+            verdict = "ACCEPT"
+
+        # Set full NFT action, including logging (if specified)
         if log_type == LogType.CSV:
             log = f"log prefix \"{self.name},,{verdict}\" group {log_group}"
             return f"{nft_rule}{log} {nft_action}"

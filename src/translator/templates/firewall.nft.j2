@@ -22,7 +22,7 @@ table bridge {{device["name"]}} {
 
         {% for nfqueue in nfqueues %}
         # NFQueue {{nfqueue.name}}
-        {{nfqueue.get_nft_rule(log_type, log_group)}}
+        {{nfqueue.get_nft_rule(drop_proba, log_type, log_group)}}
         
         {% endfor %}
         

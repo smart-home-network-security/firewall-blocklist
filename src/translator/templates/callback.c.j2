@@ -1,23 +1,35 @@
 {% macro verdict(policy_name) %}
 uint32_t old_verdict = verdict;
 
+        {% if drop_proba == 0 %}
+        // Binary ACCEPT
+        verdict = NF_ACCEPT;
+        {% elif drop_proba == 1 %}
+        // Binary DROP
+        verdict = NF_DROP;
+        {% else %}
         // Stochastic dropping
         uint16_t thread_id = *((uint16_t *) arg);
         float random_float = rand_r(&(thread_data[thread_id].seed)) / (RAND_MAX + 1.0);
         printf("Random float: %f", random_float);
         verdict = (random_float < DROP_PROBA) ? NF_DROP : NF_ACCEPT;
+        {% endif %}
 
-        #ifdef LOG
-        print_hash(hash);
-        printf(",%ld.%06ld,{{policy_name}},,DROP\n", (long int)timestamp.tv_sec, (long int)timestamp.tv_usec);
-        #endif /* LOG */
-        #ifdef DEBUG
-        printf("DROP - Policy: {{policy_name}}\n");
-        if (old_verdict != NF_DROP && verdict == NF_DROP) {
-            dropped_packets++;
-            printf("Dropped packets: %hu\n", dropped_packets);
+        #if defined LOG || defined DEBUG
+        if (verdict == NF_DROP) {
+            #ifdef LOG
+            print_hash(hash);
+            printf(",%ld.%06ld,{{policy_name}},,DROP\n", (long int)timestamp.tv_sec, (long int)timestamp.tv_usec);
+            #endif /* LOG */
+            #ifdef DEBUG
+            printf("DROP - Policy: {{policy_name}}\n");
+            if (old_verdict != NF_DROP) {
+                dropped_packets++;
+                printf("Dropped packets: %hu\n", dropped_packets);
+            }
+            #endif /* DEBUG */
         }
-        #endif /* DEBUG */
+        #endif /* LOG || DEBUG */
 {% endmacro %}
 
 {% macro write_callback_function(loop_index, nfqueue) %}
@@ -130,13 +142,13 @@ uint32_t callback_{{nfqueue_name}}(int pkt_id, int pkt_len, uint8_t *payload, vo
     {% set tmp = custom_parsers.append(policy.custom_parser) %}
     {% endif %}
     {% endfor %}
-    uint32_t verdict = NF_ACCEPT; // Packet verdict: ACCEPT or DROP
+    uint32_t verdict = NF_ACCEPT;  // Packet verdict: ACCEPT or DROP
 
     {% for policy_dict in nfqueue.policies %}
     {% set policy_idx = policy_dict["policy_idx"] %}
     {% set policy = policy_dict["policy"] %}
     {% set policy_name = policy.name %}
-    // Policy {{policy_name}}
+    /* Policy {{policy_name}} */
     {% if policy.nfq_matches %}
     if (
         {% if policy.custom_parser == 'http' %}
