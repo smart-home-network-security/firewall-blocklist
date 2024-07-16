@@ -137,8 +137,8 @@ uint32_t callback_{{nfqueue_name}}(int pkt_id, int pkt_len, uint8_t *payload, vo
     {% set policy = policy_dict["policy"] %}
     {% set policy_name = policy.name %}
     // Policy {{policy_name}}
+    {% if policy.nfq_matches %}
     if (
-        {% if policy.nfq_matches %}
         {% if policy.custom_parser == 'http' %}
         !is_http_message || (
         {% endif %}
