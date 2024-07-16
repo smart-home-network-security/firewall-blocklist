@@ -11,8 +11,10 @@ uint32_t old_verdict = verdict;
         // Stochastic dropping
         uint16_t thread_id = *((uint16_t *) arg);
         float random_float = rand_r(&(thread_data[thread_id].seed)) / (RAND_MAX + 1.0);
-        printf("Random float: %f", random_float);
         verdict = (random_float < DROP_PROBA) ? NF_DROP : NF_ACCEPT;
+        #ifdef DEBUG
+        printf("Generated random float: %f. Drop probability: %f.\n", random_float, DROP_PROBA);
+        #endif /* DEBUG */
         {% endif %}
 
         #if defined LOG || defined DEBUG
