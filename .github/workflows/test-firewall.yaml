@@ -26,5 +26,5 @@ jobs:
       - name: Translate and build profiles, with rate limiting verdict
         run: $GITHUB_WORKSPACE/.ci_scripts/firewall-test/translate_and_build.sh -r 50
 
-      # - name: Translate and build profiles, with stochastic verdict
-      #   run: $GITHUB_WORKSPACE/.ci_scripts/firewall-test/translate_and_build.sh -p 0.5
+      - name: Translate and build profiles, with stochastic verdict
+        run: $GITHUB_WORKSPACE/.ci_scripts/firewall-test/translate_and_build.sh -p 0.5
