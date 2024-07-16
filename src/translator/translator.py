@@ -162,7 +162,7 @@ if __name__ == "__main__":
     parser.add_argument("nfq_id_base", type=uint16, help="NFQueue start index for this profile's policies (must be an integer between 0 and 65535)")
     # Verdict modes
     parser.add_argument("-r", "--rate", type=int, help="Rate limit, in packets/second, to apply to matched traffic, instead of a binary verdict. Cannot be used with dropping probability.")
-    parser.add_argument("-p", "--drop-proba", type=proba, help="Dropping probability to apply to matched traffic, instead of a binary verdict. Cannot be used with rate limiting.")
+    parser.add_argument("-p", "--drop-proba", type=proba, default=1.0, help="Dropping probability to apply to matched traffic, instead of a binary verdict. Cannot be used with rate limiting.")
     parser.add_argument("-l", "--log-type", type=lambda log_type: LogType[log_type], choices=list(LogType), default=LogType.NONE, help="Type of packet logging to be used")
     parser.add_argument("-g", "--log-group", type=uint16, default=100, help="Log group number (must be an integer between 0 and 65535)")
     parser.add_argument("-t", "--test", action="store_true", help="Test mode: use VM instead of router")
@@ -256,6 +256,7 @@ if __name__ == "__main__":
                 "device": device["name"],
                 "custom_parsers": global_accs["custom_parsers"],
                 "domain_names": global_accs["domain_names"],
+                "drop_proba": args.drop_proba,
                 "num_threads": num_threads,
             }
             header = env.get_template("header.c.j2").render(header_dict)
