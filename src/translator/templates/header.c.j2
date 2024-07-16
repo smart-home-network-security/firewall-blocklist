@@ -33,10 +33,20 @@
 #include "dns.h"
 {% endif %}
 
+#define DROP_PROBA 0.5
 {% if num_threads > 0 %}
 #define NUM_THREADS {{num_threads}}
 
-pthread_t threads[NUM_THREADS];
+/**
+ * Thread-specific data.
+ */
+typedef struct {
+    uint8_t   id;      // Thread ID
+    uint32_t  seed;    // Thread-specific seed for random number generation
+    pthread_t thread;  // The thread itself
+} thread_data_t;
+
+thread_data_t thread_data[NUM_THREADS];
 {% endif %}
 
 {% if "dns" in custom_parsers or "mdns" in custom_parsers or domain_names|length > 0 %}

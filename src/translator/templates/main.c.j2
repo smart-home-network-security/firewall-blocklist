@@ -83,18 +83,20 @@ int main(int argc, char const *argv[]) {
     {% set nfqueue_name = nfqueue_name.replace('#', '_') %}
     /* {{nfqueue_name}} */
     // Setup thread-specific data
+    thread_data[i].id = i;
+    thread_data[i].seed = time(NULL) + i;
     thread_arg_t thread_arg_{{nfqueue_name}} = {
         .queue_id = {{nfqueue.queue_num}},
         .func = &callback_{{nfqueue_name}},
-        .arg = NULL
+        .arg = &(thread_data[i].id)
     };
-    ret = pthread_create(&threads[i++], NULL, nfqueue_thread, (void *) &thread_arg_{{nfqueue_name}});
+    ret = pthread_create(&(thread_data[i++].thread), NULL, nfqueue_thread, (void *) &thread_arg_{{nfqueue_name}});
     assert(ret == 0);
     
     {% endfor %}
     // Wait forever for threads
     for (i = 0; i < NUM_THREADS; i++) {
-        pthread_join(threads[i], NULL);
+        pthread_join(thread_data[i++].thread, NULL);
     }
     {% endif %}
 

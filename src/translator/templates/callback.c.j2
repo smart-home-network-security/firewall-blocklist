@@ -1,17 +1,23 @@
-{% macro verdict(policy_name, interaction_data = "") %}
-#ifdef LOG
+{% macro verdict(policy_name) %}
+uint32_t old_verdict = verdict;
+
+        // Stochastic dropping
+        uint16_t thread_id = *((uint16_t *) arg);
+        float random_float = rand_r(&(thread_data[thread_id].seed)) / (RAND_MAX + 1.0);
+        printf("Random float: %f", random_float);
+        verdict = (random_float < DROP_PROBA) ? NF_DROP : NF_ACCEPT;
+
+        #ifdef LOG
         print_hash(hash);
-        printf(",%ld.%06ld,{{policy_name}},,ACCEPT\n", (long int)timestamp.tv_sec, (long int)timestamp.tv_usec);
+        printf(",%ld.%06ld,{{policy_name}},,DROP\n", (long int)timestamp.tv_sec, (long int)timestamp.tv_usec);
         #endif /* LOG */
         #ifdef DEBUG
-        printf("ACCEPT - Policy: {{policy_name}}\n");
-        if (verdict != NF_DROP) {
-            accepted_packets++;
-            printf("Accepted packets: %hu\n", accepted_packets);
+        printf("DROP - Policy: {{policy_name}}\n");
+        if (old_verdict != NF_DROP && verdict == NF_DROP) {
+            dropped_packets++;
+            printf("Dropped packets: %hu\n", dropped_packets);
         }
         #endif /* DEBUG */
-
-        verdict = NF_DROP;
 {% endmacro %}
 
 {% macro write_callback_function(loop_index, nfqueue) %}
@@ -216,7 +222,7 @@ uint32_t callback_{{nfqueue_name}}(int pkt_id, int pkt_len, uint8_t *payload, vo
         }
         {% endif %}
 
-        {{ verdict(policy_name, interaction_data) }}
+        {{ verdict(policy_name) }}
     }
     {% elif loop.last %}
     // No other policy matched for this nfqueue
@@ -235,9 +241,9 @@ uint32_t callback_{{nfqueue_name}}(int pkt_id, int pkt_len, uint8_t *payload, vo
 
     #ifdef LOG
     if (verdict != NF_DROP) {
-        // Log packet as dropped
+        // Log packet as accepted
         print_hash(hash);
-        printf(",%ld.%06ld,{{nfqueue.name}},,DROP\n", (long int)timestamp.tv_sec, (long int)timestamp.tv_usec);
+        printf(",%ld.%06ld,{{nfqueue.name}},,ACCEPT\n", (long int)timestamp.tv_sec, (long int)timestamp.tv_usec);
     }
     free(hash);
     #endif /* LOG */
