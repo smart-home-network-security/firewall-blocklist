@@ -117,9 +117,6 @@ def parse_policy(policy_data: dict, nfq_id: int, global_accs: dict, rate: int = 
     if rate is not None:
         policy_data["profile_data"]["stats"] = {"rate": f"{rate}/second"}
 
-    # Set default value for drop probability
-    drop_proba = 1.0 if drop_proba is None else drop_proba
-
     # Create and parse policy
     policy = Policy(**policy_data)
     policy.parse()
@@ -175,6 +172,9 @@ if __name__ == "__main__":
     # Verify verdict mode
     if args.rate is not None and args.drop_proba is not None:
         parser.error("Arguments --rate and --drop-proba are mutually exclusive")
+
+    # Set default value for drop probability
+    args.drop_proba = 1.0 if args.drop_proba is None else args.drop_proba
 
     # Retrieve device profile's path
     device_path = os.path.abspath(os.path.dirname(args.profile))
