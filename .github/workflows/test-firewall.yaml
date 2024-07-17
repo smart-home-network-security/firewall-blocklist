@@ -34,8 +34,11 @@ jobs:
       - name: Run cppcheck on source files
         run: $GITHUB_WORKSPACE/.ci_scripts/firewall-test/run_cppcheck.sh
       
-      - name: Add nftables rules
+      - name: Add NFTables rules
         run:  $GITHUB_WORKSPACE/.ci_scripts/firewall-test/add_nft_rules.sh
+
+      - name: Run NFQueue executables
+        run: $GITHUB_WORKSPACE/.ci_scripts/firewall-test/run_exec.sh
 
 
   rate-limit-verdict:
@@ -70,6 +73,9 @@ jobs:
       
       - name: Add nftables rules
         run:  $GITHUB_WORKSPACE/.ci_scripts/firewall-test/add_nft_rules.sh
+      
+      - name: Run NFQueue executables
+        run: $GITHUB_WORKSPACE/.ci_scripts/firewall-test/run_exec.sh
 
 
   random-verdict:
@@ -104,3 +110,6 @@ jobs:
       
       - name: Add nftables rules
         run:  $GITHUB_WORKSPACE/.ci_scripts/firewall-test/add_nft_rules.sh
+
+      - name: Run NFQueue executables
+        run: $GITHUB_WORKSPACE/.ci_scripts/firewall-test/run_exec.sh
