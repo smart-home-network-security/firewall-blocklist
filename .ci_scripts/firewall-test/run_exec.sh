@@ -12,7 +12,12 @@ for EXEC in "$BIN_DIR"/*
 do
     if [ -f "$EXEC" ]
     then
-        sudo $EXEC & sleep $TIMEOUT
+        ARG=""
+        if [[ "$EXEC" == *"/nflog" ]]
+        then
+            ARG="100"
+        fi
+        sudo $EXEC $ARG & sleep $TIMEOUT
         sudo kill $!
     fi
 done
