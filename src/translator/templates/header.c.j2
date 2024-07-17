@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include <string.h>
 #include <pthread.h>
 #include <assert.h>
@@ -33,7 +34,11 @@
 #include "dns.h"
 {% endif %}
 
-#define DROP_PROBA {{drop_proba}}
+
+/* CONSTANTS */
+
+float DROP_PROBA = {{drop_proba}};  // Drop probability for random drop verdict mode
+
 {% if num_threads > 0 %}
 #define NUM_THREADS {{num_threads}}
 

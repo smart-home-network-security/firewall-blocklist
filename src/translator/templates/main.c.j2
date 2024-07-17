@@ -8,6 +8,17 @@ void sigint_handler(int arg) {
     exit(0);
 }
 
+
+/**
+ * @brief Print program usage.
+ * 
+ * @param prog program name
+ */
+void usage(char* prog) {
+    fprintf(stderr, "Usage: %s [-s DNS_SERVER_IP] [-p DROP_PROBA]\n", prog);
+}
+
+
 /**
  * @brief Program entry point
  * 
@@ -15,15 +26,47 @@ void sigint_handler(int arg) {
  * @param argv list of command line arguments
  * @return exit code, 0 if success
  */
-int main(int argc, char const *argv[]) {
+int main(int argc, char *argv[]) {
+
+    char *dns_server_ip = "8.8.8.8";  // Default DNS server: Google Quad8
 
     // Setup SIGINT handler
     signal(SIGINT, sigint_handler);
+
+
+    /* COMMAND LINE ARGUMENTS */
+    int opt;
+    while ((opt = getopt(argc, argv, "hp:s:")) != -1)
+    {
+        switch (opt)
+        {
+        case 'h':
+            /* Help */
+            usage(argv[0]);
+            exit(EXIT_SUCCESS);
+        case 'p':
+            /* Random verdict mode: drop probability (float between 0 and 1) */
+            DROP_PROBA = atof(optarg);
+            break;
+        case 's':
+            /* IP address of the network gateway */
+            dns_server_ip = optarg;
+            break;
+        default:
+            usage(argv[0]);
+            exit(EXIT_FAILURE);
+        }
+    }
+    #ifdef DEBUG
+    printf("Drop probability for random verdict mode: %f\n", DROP_PROBA);
+    #endif /* DEBUG */
+
 
     #ifdef LOG
     // CSV log file header
     printf("hash,timestamp,policy,state,verdict\n");
     #endif /* LOG */
+
 
     /* GLOBAL STRUCTURES INITIALIZATION */
 
@@ -44,7 +87,7 @@ int main(int argc, char const *argv[]) {
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(53);
-    server_addr.sin_addr.s_addr = inet_addr("192.168.1.1");
+    server_addr.sin_addr.s_addr = inet_addr(dns_server_ip);
 
     {% for name in domain_names %}
     // Add addresses for domain {{name}} to DNS map
