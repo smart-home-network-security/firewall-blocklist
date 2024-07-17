@@ -42,5 +42,8 @@ $CI_SCRIPTS_DIR/run_tests.sh valgrind
 # 5. Run cppcheck on source files
 $CI_SCRIPTS_DIR/run_cppcheck.sh
 
-# 6. Add nftables rules
+# 6. Add NFTables rules
 $CI_SCRIPTS_DIR/add_nft_rules.sh
+
+# 7. Run NFQueue executables
+$CI_SCRIPTS_DIR/run_exec.sh
