@@ -28,6 +28,8 @@ void usage(char* prog) {
  */
 int main(int argc, char *argv[]) {
 
+    // Initialize variables
+    int ret;
     char *dns_server_ip = "8.8.8.8";  // Default DNS server: Google Quad8
 
     // Setup SIGINT handler
@@ -71,8 +73,11 @@ int main(int argc, char *argv[]) {
     /* GLOBAL STRUCTURES INITIALIZATION */
 
     {% if "dns" in custom_parsers or "mdns" in custom_parsers or domain_names|length > 0 %}
-    // Initialize DNS map
+    // Initialize variables for DNS
     dns_map = dns_map_create();
+    dns_message_t dns_response;
+    ip_list_t ip_list;
+    dns_entry_t *dns_entry;
 
     {% if domain_names|length > 0 %}
     // Open socket for DNS
@@ -91,23 +96,19 @@ int main(int argc, char *argv[]) {
 
     {% for name in domain_names %}
     // Add addresses for domain {{name}} to DNS map
-    dns_send_query("{{name}}", sockfd, &server_addr);
-    {% if loop.index == 1 %}
-    dns_message_t dns_response = dns_receive_response(sockfd, &server_addr);
-    ip_list_t ip_list = dns_get_ip_from_name(dns_response.answers, dns_response.header.ancount, "{{name}}");
-    {% else %}
-    dns_response = dns_receive_response(sockfd, &server_addr);
-    ip_list = dns_get_ip_from_name(dns_response.answers, dns_response.header.ancount, "{{name}}");
-    {% endif %}
-    dns_map_add(dns_map, "{{name}}", ip_list);
-
-    // Check DNS map has been correctly updated
-    {% if loop.index == 1 %}
-    dns_entry_t *dns_entry = dns_map_get(dns_map, "{{name}}");
-    {% else %}
-    dns_entry = dns_map_get(dns_map, "{{name}}");
-    {% endif %}
-    dns_entry_print(dns_entry);
+    ret = dns_send_query("{{name}}", sockfd, &server_addr);
+    if (ret == 0) {
+        ret = dns_receive_response(sockfd, &server_addr, &dns_response);
+        if (ret == 0) {
+            ip_list = dns_get_ip_from_name(dns_response.answers, dns_response.header.ancount, "{{name}}");
+            dns_map_add(dns_map, "{{name}}", ip_list);
+            #ifdef DEBUG
+            // Check DNS map has been correctly updated
+            dns_entry = dns_map_get(dns_map, "{{name}}");
+            dns_entry_print(dns_entry);
+            #endif /* DEBUG */
+        }
+    }
 
     {% endfor %}
     {% endif %}
@@ -118,7 +119,6 @@ int main(int argc, char *argv[]) {
     /* NFQUEUE THREADS LAUNCH */
 
     // Create threads
-    int ret = 0;  // Return code for pthread_create function
     uint8_t i = 0;
 
     {% for nfqueue in nfqueues if nfqueue.queue_num >= 0 %}
