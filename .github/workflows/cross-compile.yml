@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
 
-  cross-compile:
+  binary-verdict:
     runs-on: ubuntu-latest
     container: fdekeers/openwrt_tl-wdr4900_gha
 
@@ -18,11 +18,44 @@ jobs:
       - name: Install Python packages
         run: pip install -r $GITHUB_WORKSPACE/requirements.txt
 
-      - name: Translate and build profiles, with binary verdict
-        run: $GITHUB_WORKSPACE/.ci_scripts/cross-compile/translate_and_build.sh
+      - name: Translate profiles
+        run: $GITHUB_WORKSPACE/.ci_scripts/full-test/translate_profiles.sh
 
-      - name: Translate and build profiles, with rate limiting verdict
-        run: $GITHUB_WORKSPACE/.ci_scripts/cross-compile/translate_and_build.sh -r 50
+      - name: Run cross-compilation
+        run: $GITHUB_WORKSPACE/build.sh -d $GITHUB_WORKSPACE -t $GITHUB_WORKSPACE/openwrt/tl-wdr4900.cmake
 
-      - name: Translate and build profiles, with stochastic verdict
-        run: $GITHUB_WORKSPACE/.ci_scripts/cross-compile/translate_and_build.sh -p 0.5
+
+  rate-limit-verdict:
+    runs-on: ubuntu-latest
+    container: fdekeers/openwrt_tl-wdr4900_gha
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      
+      - name: Translate profiles
+        run: $GITHUB_WORKSPACE/.ci_scripts/full-test/translate_profiles.sh -r 50
+      
+      - name: Run cross-compilation
+        run: $GITHUB_WORKSPACE/build.sh -d $GITHUB_WORKSPACE -t $GITHUB_WORKSPACE/openwrt/tl-wdr4900.cmake
+
+
+  random-verdict:
+    runs-on: ubuntu-latest
+    container: fdekeers/openwrt_tl-wdr4900_gha
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      
+      - name: Translate profiles
+        run: $GITHUB_WORKSPACE/.ci_scripts/full-test/translate_profiles.sh -p 0.5
+
+      - name: Run cross-compilation
+        run: $GITHUB_WORKSPACE/build.sh -d $GITHUB_WORKSPACE -t $GITHUB_WORKSPACE/openwrt/tl-wdr4900.cmake
