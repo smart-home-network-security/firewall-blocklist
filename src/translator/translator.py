@@ -160,7 +160,7 @@ if __name__ == "__main__":
     description = "Translate a device YAML profile to the corresponding pair of NFTables firewall script and NFQueue C source code."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("profile", type=str, help="Path to the device YAML profile")
-    parser.add_argument("nfq_id_base", type=uint16, help="NFQueue start index for this profile's policies (must be an integer between 0 and 65535)")
+    parser.add_argument("-q", "--nfqueue", type=uint16, default=0, help="NFQueue start index for this profile's policies (must be an integer between 0 and 65535)")
     # Verdict modes
     parser.add_argument("-r", "--rate", type=int, help="Rate limit, in packets/second, to apply to matched traffic, instead of a binary verdict. Cannot be used with dropping probability.")
     parser.add_argument("-p", "--drop-proba", type=proba, help="Dropping probability to apply to matched traffic, instead of a binary verdict. Cannot be used with rate limiting.")
@@ -201,7 +201,7 @@ if __name__ == "__main__":
         device = profile["device-info"]
 
         # Base nfqueue id, will be incremented at each interaction
-        nfq_id = args.nfq_id_base
+        nfq_id = args.nfqueue
 
         # Global accumulators
         global_accs = {
