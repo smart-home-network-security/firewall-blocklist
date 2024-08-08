@@ -37,6 +37,7 @@ uint32_t old_verdict = verdict;
 {% macro write_callback_function(loop_index, nfqueue) %}
 {% set nfqueue_name = nfqueue.name.replace('-', '_') %}
 {% set nfqueue_name = nfqueue_name.replace('#', '_') %}
+{% set nfqueue_name = nfqueue_name.replace('.', '_') %}
 /**
  * @brief {{nfqueue.name}} callback function, called when a packet enters the queue.
  * 

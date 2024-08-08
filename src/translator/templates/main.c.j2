@@ -124,7 +124,8 @@ int main(int argc, char *argv[]) {
     {% for nfqueue in nfqueues if nfqueue.queue_num >= 0 %}
     {% set nfqueue_name = nfqueue.name.replace('-', '_') %}
     {% set nfqueue_name = nfqueue_name.replace('#', '_') %}
-    /* {{nfqueue_name}} */
+    {% set nfqueue_name = nfqueue_name.replace('.', '_') %}
+    /* {{nfqueue.name}} */
     // Setup thread-specific data
     thread_data[i].id = i;
     thread_data[i].seed = time(NULL) + i;
