@@ -128,6 +128,7 @@ if __name__ == "__main__":
     description = "Translate a device YAML profile to the corresponding pair of NFTables firewall script and NFQueue C source code."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("profile", type=str, help="Path to the device YAML profile")
+    parser.add_argument("-n", "--name", type=str, help="Name of the device's NFQueue")
     parser.add_argument("-q", "--nfqueue", type=uint16, default=0, help="NFQueue start index for this profile's policies (must be an integer between 0 and 65535)")
     parser.add_argument("-o", "--output", type=directory, help="Output directory for the generated files")
     # Verdict modes
@@ -173,6 +174,9 @@ if __name__ == "__main__":
         # Get device info
         device = profile["device-info"]
 
+        # Set device's NFQueue name if not provided as argument
+        args.name = args.name if args.name is not None else device["name"]
+
         # Base nfqueue id, will be incremented at each interaction
         nfq_id = args.nfqueue
 
@@ -184,7 +188,7 @@ if __name__ == "__main__":
         }
     
     
-        # Loop over the device's individual policies
+        ## Loop over the device's individual policies
         if "single-policies" in profile:
             for policy_name in profile["single-policies"]:
                 profile_data = profile["single-policies"][policy_name]
@@ -259,7 +263,10 @@ if __name__ == "__main__":
                 fw.write(main)
 
             # Create CMake file
-            cmake_dict = {"device": device["name"]}
+            cmake_dict = {
+                "device":  device["name"],
+                "nfqueue_name": args.name
+            }
             env.get_template("CMakeLists.txt.j2").stream(cmake_dict).dump(f"{args.output}/CMakeLists.txt")
 
 
