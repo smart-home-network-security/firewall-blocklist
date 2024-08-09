@@ -6,5 +6,7 @@
 build
 bin
 
+devices
+
 # Python cache
 __pycache__
