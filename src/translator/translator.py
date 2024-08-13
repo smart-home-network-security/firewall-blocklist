@@ -263,9 +263,11 @@ if __name__ == "__main__":
                 fw.write(main)
 
             # Create CMake file
+            custom_parsers = " ".join(global_accs["custom_parsers"])
             cmake_dict = {
                 "device":  device["name"],
-                "nfqueue_name": args.name
+                "nfqueue_name": args.name,
+                "custom_parsers": custom_parsers
             }
             env.get_template("CMakeLists.txt.j2").stream(cmake_dict).dump(f"{args.output}/CMakeLists.txt")
 
