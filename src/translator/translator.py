@@ -87,7 +87,6 @@ def parse_policy(policy_data: dict, nfq_id: int, global_accs: dict, rate: int = 
 
     # Create and parse policy
     policy = Policy(**policy_data)
-    policy.parse()
 
     # If policy has domain name match,
     # add domain name to global list
@@ -194,9 +193,9 @@ if __name__ == "__main__":
                 profile_data = profile["single-policies"][policy_name]
 
                 policy_data = {
-                    "policy_name": policy_name,
                     "profile_data": profile_data,
                     "device": device,
+                    "policy_name": policy_name,
                     "is_backward": False
                 }
                 
@@ -207,9 +206,9 @@ if __name__ == "__main__":
                 # Parse policy in backward direction, if needed
                 if is_backward:
                     policy_data_backward = {
-                        "policy_name": f"{policy_name}-backward",
                         "profile_data": profile_data,
                         "device": device,
+                        "policy_name": f"{policy_name}-backward",
                         "is_backward": True
                     }
                     policy_backward, new_nfq = parse_policy(policy_data_backward, nfq_id + 1, global_accs, args.rate, args.drop_proba, args.log_type, args.log_group)
