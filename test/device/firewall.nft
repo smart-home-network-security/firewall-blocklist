@@ -1,0 +1,39 @@
+#!/usr/sbin/nft -f
+
+table bridge tplink-plug {
+
+    # Chain PREROUTING, entry point for all traffic
+    chain prerouting {
+        
+        # Base chain, need configuration
+        # Default policy is ACCEPT
+        type filter hook prerouting priority 0; policy accept;
+
+        # NFQueue lan-tcp-to-phone
+        meta l4proto tcp tcp sport 9999 ip saddr 192.168.1.135 ip daddr 192.168.1.222 drop
+        
+        # NFQueue lan-tcp-to-phone-backward
+        meta l4proto tcp tcp dport 9999 ip daddr 192.168.1.135 ip saddr 192.168.1.222 drop
+        
+        # NFQueue lan-udp-to-phone
+        meta l4proto udp udp sport 9999 ip saddr 192.168.1.135 ip daddr 192.168.1.222 drop
+        
+        # NFQueue lan-udp-to-phone-backward
+        meta l4proto udp udp dport 9999 ip daddr 192.168.1.135 ip saddr 192.168.1.222 drop
+        
+        # NFQueue dns-query-tplinkapi
+        meta l4proto udp udp dport 53 ip saddr 192.168.1.135 ip daddr 192.168.1.1 queue num 0
+        
+        # NFQueue dns-query-tplinkapi-backward
+        meta l4proto udp udp sport 53 ip daddr 192.168.1.135 ip saddr 192.168.1.1 queue num 1
+        
+        # NFQueue wan-https-to-domain-tplinkapi
+        meta l4proto tcp tcp dport 443 ip saddr 192.168.1.135 queue num 10
+        
+        # NFQueue wan-https-to-domain-tplinkapi-backward
+        meta l4proto tcp tcp sport 443 ip daddr 192.168.1.135 queue num 11
+        
+        
+    }
+
+}

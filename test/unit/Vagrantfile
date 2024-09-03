@@ -11,7 +11,7 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # https://vagrantcloud.com/ubuntu
   config.vm.box = "ubuntu/jammy64"  # Ubuntu 22.04
-  config.vm.hostname = "firewall-test"
+  config.vm.hostname = "native-build"
   config.vm.network "private_network", type: "dhcp", name: "vboxnet0"
 
   config.vm.provider "virtualbox" do |vb|
@@ -32,7 +32,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     sudo apt-get update
     sudo apt-get upgrade -y
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential cmake net-tools tshark nftables libnetfilter-queue-dev libnetfilter-log-dev python3-pip 
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential cmake net-tools tshark nftables libnetfilter-queue-dev libnetfilter-log-dev
     sudo pip3 install scapy
   SHELL
 
