@@ -17,7 +17,7 @@ jobs:
         run: sudo $GITHUB_WORKSPACE/.ci_scripts/native-build/install_packages.sh
 
       - name: Build project with CMake
-        run: $GITHUB_WORKSPACE/build.sh -d $GITHUB_WORKSPACE
+        run: $GITHUB_WORKSPACE/build.sh -C $GITHUB_WORKSPACE
 
       - name: Run CUnit tests
         run: $GITHUB_WORKSPACE/.ci_scripts/native-build/run_tests.sh
@@ -47,4 +47,4 @@ jobs:
           submodules: recursive
 
       - name: Run cross-compilation
-        run: $GITHUB_WORKSPACE/build.sh -d $GITHUB_WORKSPACE -t $GITHUB_WORKSPACE/openwrt/tl-wdr4900.cmake
+        run: $GITHUB_WORKSPACE/build.sh -C $GITHUB_WORKSPACE -t $GITHUB_WORKSPACE/openwrt/tl-wdr4900.cmake
