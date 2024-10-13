@@ -1,19 +1,16 @@
+# CONSTANTS
 EXITCODE=0
 
-for nft_script in $GITHUB_WORKSPACE/test/device/firewall.nft
-do
-    # Flush the ruleset before next device
-    sudo nft flush ruleset
-    # Try adding the ruleset
-    sudo nft -f "$nft_script"
-    # If the exit code is not 0, set EXITCODE to 1
-    if [[ $? -ne 0 ]]
-    then
-        EXITCODE=1
-    fi
-done
+# Flush the ruleset before next device
+sudo nft flush ruleset
+# Try adding the ruleset
+sudo nft -f test/device/firewall.nft
+# If the exit code is not 0, set EXITCODE to 1
+if [[ $? -ne 0 ]]
+then
+    EXITCODE=1
+fi
 
-# Cleanup: Flush the ruleset
 sudo nft flush ruleset
 
 exit $EXITCODE
