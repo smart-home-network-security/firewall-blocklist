@@ -1,6 +1,5 @@
 # Dockerfile describing the container used to
-# cross-compile the projet for OpenWrt,
-# in GitHub Actions.
+# cross-compile the projet for OpenWrt.
 # The default platform is the TP-Link WDR4900.
 
 # Base image: Ubuntu 22.04 LTS
@@ -13,8 +12,7 @@ ARG TOOLCHAIN_DIR=toolchain-powerpc_8540_gcc-11.2.0_musl
 ARG TARGET_DIR=target-powerpc_8540_musl
 
 # Set initial working directory
-ENV HOME=/root
-WORKDIR ${HOME}
+WORKDIR /
 
 # Install dependencies
 RUN apt-get update && \
@@ -36,8 +34,16 @@ RUN apt-get update && \
     zlib1g-dev \
     file \
     wget \
-    cmake \
-    python3-pip
+    cmake
+
+# Create non-root user
+ARG USER=user
+ARG UID=1000
+ARG HOME=/home/${USER}
+RUN groupadd --gid ${UID} ${USER} && \
+    useradd --uid ${UID} --gid ${UID} -m ${USER} -s /bin/bash
+USER ${USER}
+WORKDIR ${HOME}
 
 # Clone OpenWrt repository
 ENV OPENWRT_HOME=${HOME}/openwrt
@@ -50,8 +56,7 @@ RUN ${OPENWRT_HOME}/scripts/feeds update -a
 RUN ${OPENWRT_HOME}/scripts/feeds install -a
 
 # Configure OpenWrt toolchain
-COPY openwrt/${ROUTER}/config/config-minimal ${OPENWRT_HOME}/.config
-ENV FORCE_UNSAFE_CONFIGURE=1
+COPY --chown=$USER:$USER openwrt/${ROUTER}/config-minimal ${OPENWRT_HOME}/.config
 RUN make defconfig
 RUN make download
 RUN make -j $(($(nproc)+1))
@@ -62,5 +67,6 @@ ENV C_INCLUDE_PATH=${TARGET_PATH}/usr/include
 ENV LD_LIBRARY_PATH=${TARGET_PATH}/usr/lib
 ENV PATH=${TOOLCHAIN_PATH}/bin:$PATH
 
-# Get ready for next steps
-WORKDIR ${HOME}
+# Switch back to root user
+USER root
+WORKDIR /root
