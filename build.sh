@@ -43,7 +43,12 @@ then
 fi
 
 # Clean directory
-sudo rm -rf build bin
+SUDO_PREFIX=""
+if [[ $(whoami) != "root" ]]
+then
+    SUDO_PREFIX="sudo"
+fi
+$SUDO_PREFIX rm -rf build bin
 
 ## Set environmental variables
 ENV_VARS=""
