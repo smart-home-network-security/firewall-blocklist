@@ -17,4 +17,4 @@ job-native-build:
 # Cross-compile the project for the TL-WDR4900 router
 job-cross-compilation:
   script:
-    - docker compose run cross-compilation /home/user/iot-firewall/docker_cmd.sh tl-wdr4900 $(id -u $USER) $(id -g $USER)
+    - docker compose run --rm --remove-orphans cross-compilation /home/user/iot-firewall/docker_cmd.sh tl-wdr4900 $(id -u $(whoami)) $(id -g $(whoami))
