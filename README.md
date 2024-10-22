@@ -11,7 +11,6 @@ changed from an allow-list firewall to a block-list one.
 
 Compile locally with:
 ```bash
-./test/translator/translate.sh
 mkdir build bin
 cd build
 cmake ..
@@ -19,7 +18,6 @@ cmake --build .
 ```
 or, more easily:
 ```bash
-./test/translator/translate.sh
 ./build.sh
 ```
 
