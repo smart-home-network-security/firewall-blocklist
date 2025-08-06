@@ -4,7 +4,7 @@
 
 Profile-based, multi-layer, block-list Smart Home firewall, based on NFTables & NFQueue.
 Minimal version of [smart-home-firewall](https://github.com/smart-home-network-security/smart-home-firewall),
-changed from an allow-list firewall to a deny-list one.
+changed from an allow-list firewall to a block-list one.
 
 
 ## Local compilation
