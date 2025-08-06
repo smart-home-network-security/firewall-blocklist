@@ -1,6 +1,6 @@
 EXITCODE=0
 PARSERS_DIR="src/parsers"
-VALGRIND_SUPP=".ci_scripts/native-build/valgrind.supp"
+VALGRIND_SUPP=".ci_scripts/test-build/valgrind.supp"
 
 PREFIX=""
 for file in bin/test/* "$PARSERS_DIR"/bin/test/*
