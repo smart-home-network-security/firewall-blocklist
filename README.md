@@ -1,7 +1,5 @@
 # Smart Home block-list firewall
 
-[![pipeline status](https://forge.uclouvain.be/smart-home-network-security/firewall-blocklist/badges/main/pipeline.svg)](https://forge.uclouvain.be/smart-home-network-security/firewall-blocklist/-/commits/main)
-
 Profile-based, multi-layer, block-list Smart Home firewall, based on NFTables & NFQueue.
 Minimal version of [smart-home-firewall](https://github.com/smart-home-network-security/smart-home-firewall),
 changed from an allow-list firewall to a block-list one.

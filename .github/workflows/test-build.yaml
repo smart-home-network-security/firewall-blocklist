@@ -30,3 +30,16 @@ jobs:
       
       - name: Add nftables rules
         run: .ci_scripts/test-build/add_nft_rules.sh
+
+
+  cross-compilation:
+    runs-on: self-hosted
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Run cross-compilation
+        run: docker compose run --rm --remove-orphans cross-compilation /home/user/iot-firewall/docker_cmd.sh tl-wdr4900 $(id -u $(whoami)) $(id -g $(whoami))
