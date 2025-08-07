@@ -5,6 +5,6 @@ cmake_minimum_required(VERSION 3.20)
 # Sample profiles
 add_subdirectory(device)
 # Unit tests
-IF( NOT (NO_TEST OR OPENWRT_CROSSCOMPILING) )
+IF( DO_TESTS AND NOT OPENWRT_CROSSCOMPILING )
     add_subdirectory(unit)
 ENDIF()

@@ -17,7 +17,7 @@ jobs:
         run: sudo .ci_scripts/test-build/install_packages.sh
       
       - name: Build project
-        run: ./build.sh
+        run: ./build.sh -T
       
       - name: Run unit tests
         run: .ci_scripts/test-build/run_tests.sh
